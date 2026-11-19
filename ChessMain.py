@@ -9,6 +9,9 @@ DIMENSIONS = 8 #dimensions of squares on board
 SQ_SIZE = WIDTH // DIMENSIONS
 MAX_FPS = 15 #for animation
 IMAGES = {}
+USE_STOCKFISH = True
+STOCKFISH_PATH = "stockfish"  # e.g. "/opt/homebrew/bin/stockfish" on Apple Silicon macOS
+STOCKFISH_DEPTH = 18
 
 """
 Initialising a global dictionary of chess piece images, going to be called only once 
@@ -84,7 +87,16 @@ def main():
 
         #AI move finder
         if not game_over and not human_turn:
-            AI_move = ChessAI.find_best_move(gs, valid_moves)
+            AI_move = None
+            if USE_STOCKFISH:
+                AI_move = ChessAI.find_stockfish_move(
+                    gs,
+                    valid_moves,
+                    stockfish_path=STOCKFISH_PATH,
+                    depth=STOCKFISH_DEPTH,
+                )
+            if AI_move is None:
+                AI_move = ChessAI.find_best_move(gs, valid_moves)
             if AI_move is None:
                 AI_move = ChessAI.find_random_move(valid_moves)
             gs.make_move(AI_move)
